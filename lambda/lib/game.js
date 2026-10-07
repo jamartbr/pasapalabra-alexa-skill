@@ -2,7 +2,8 @@
 const { ROSCO_27 } = require('./config');
 
 function normaliza(s) {
-  return (s || '').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zñ]/g, '');
+  // Preserva la eñe: NFD la descompone en n + virgulilla y el regex se la comería
+  return (s || '').toLowerCase().trim().replace(/ñ/g, '\u0001').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\u0001/g, 'ñ').replace(/[^a-zñ]/g, '');
 }
 
 function pistaPara(letra, respuesta) {

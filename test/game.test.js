@@ -10,9 +10,10 @@ test('init crea 27 en orden A-Z+Ñ', () => {
   expect(j.fase).toBe('EN_JUEGO');
 });
 
-test('normaliza tildes y mayúsculas', () => {
+test('normaliza tildes y mayúsculas (preserva eñe)', () => {
   expect(normaliza('Árbol')).toBe('arbol');
-  expect(normaliza('  MaÑana ')).toBe('manana');
+  expect(normaliza('  MaÑana ')).toBe('mañana');
+  expect(normaliza('Niñez')).toBe('niñez');
 });
 
 test('acierto avanza y cuenta', () => {
