@@ -1,0 +1,50 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "es-ES": {
+          "summary": "Juego Rosco de palabras por voz",
+          "examplePhrases": ["Alexa, jugar a rosco de palabras", "Alexa, abre rosco de palabras", "Alexa, quiero jugar al rosco"],
+          "name": "Rosco de palabras",
+          "description": "Juego Pasapalabra por voz: rosco de 27 letras con la Ñ, sin temporizador, con ranking local y continuación de partida.",
+          "keywords": ["pasapalabra", "rosco", "juego", "palabras", "trivial"]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": ["ES"],
+      "category": "GAMES",
+      "distributionMode": "PUBLIC"
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": "lambda",
+          "uri": "ask-custom-rosco-de-palabras-default"
+        },
+        "interfaces": [],
+        "regions": {
+          "EU": {
+            "endpoint": {
+              "sourceDir": "lambda",
+              "uri": "ask-custom-rosco-de-palabras-default"
+            }
+          }
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "es-ES": {
+          "privacyPolicyUrl": "",
+          "termsOfUseUrl": ""
+        }
+      }
+    }
+  }
+}

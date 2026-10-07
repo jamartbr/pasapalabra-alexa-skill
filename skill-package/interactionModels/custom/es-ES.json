@@ -1,0 +1,98 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "rosco de palabras",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "EmpezarRoscoIntent",
+          "slots": [],
+          "samples": ["quiero jugar", "empieza el rosco", "empezar", "nuevo rosco", "empieza", "jugar"]
+        },
+        {
+          "name": "ResponderIntent",
+          "slots": [
+            {
+              "name": "Respuesta",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": ["{Respuesta}", "la respuesta es {Respuesta}", "es {Respuesta}", "digo {Respuesta}"]
+        },
+        {
+          "name": "PasarIntent",
+          "slots": [],
+          "samples": ["pasapalabra", "la p-palabra", "pasa", "paso", "no la sé pasa", "paso palabra", "me la salto"]
+        },
+        {
+          "name": "EstadoRoscoIntent",
+          "slots": [],
+          "samples": ["cómo voy", "cómo va mi rosco", "dime la letra actual", "repíteme la pregunta", "repite la pregunta"]
+        },
+        {
+          "name": "RankingIntent",
+          "slots": [],
+          "samples": ["mi ranking", "mi mejor marca", "cuál es mi récord", "mis puntos", "mejores resultados"]
+        },
+        {
+          "name": "SeguirRoscoIntent",
+          "slots": [],
+          "samples": ["seguir", "continúa", "continua", "sigue con el rosco", "quiero seguir"]
+        },
+        {
+          "name": "NuevoRoscoIntent",
+          "slots": [],
+          "samples": ["nuevo", "otro rosco", "empieza otro", "uno nuevo", "quiero uno nuevo"]
+        },
+        {
+          "name": "SalirIntent",
+          "slots": [],
+          "samples": ["salir", "abandona", "cerrar", "sal del juego", "terminar"]
+        }
+      ],
+      "types": []
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "ResponderIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "Respuesta",
+              "type": "AMAZON.SearchQuery",
+              "elicitationRequired": false,
+              "confirmationRequired": false,
+              "prompts": {}
+            }
+          ]
+        }
+      ]
+    },
+    "prompts": []
+  }
+}
