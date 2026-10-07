@@ -22,7 +22,7 @@ function ask(entry) {
 const SiSeguirHandler = {
   canHandle(h) {
     const r = h.requestEnvelope.request;
-    return (r.type === 'IntentRequest' && ['AMAZON.YesIntent', 'ContinuarRoscoIntent', 'EmpezarRoscoIntent'].includes(r.intent.name));
+    return (r.type === 'IntentRequest' && ['AMAZON.YesIntent', 'ContinuarRoscoIntent'].includes(r.intent.name));
   },
   async handle(h) {
     let stored = {};
@@ -40,6 +40,21 @@ const SiSeguirHandler = {
     const actual = getActual(juego);
     const t = ask(actual);
     return b.speak(t.speak).reprompt(t.reprompt).getResponse();
+  }
+};
+
+const EmpezarHandler = {
+  canHandle(h) {
+    const r = h.requestEnvelope.request;
+    return (r.type === 'IntentRequest' && r.intent.name === 'EmpezarRoscoIntent');
+  },
+  async handle(h) {
+    // Regla voz: jugar / nuevo rosco SIEMPRE crea rosco nuevo, aunque haya partida guardada
+    const juego = initRosco(BANCO);
+    await persistEnCurso(h, juego);
+    const actual = getActual(juego);
+    const t = ask(actual);
+    return h.responseBuilder.speak(t.speak).reprompt(t.reprompt).getResponse();
   }
 };
 
@@ -63,4 +78,4 @@ const NuevoRoscoHandler = {
   }
 };
 
-module.exports = { SiSeguirHandler, NuevoRoscoHandler };
+module.exports = { SiSeguirHandler, EmpezarHandler, NuevoRoscoHandler };

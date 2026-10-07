@@ -1,6 +1,6 @@
 'use strict';
 // Handlers contra el modelo simplificado: Continuar/No, FIN con récord.
-const { SiSeguirHandler, NuevoRoscoHandler } = require('../lambda/handlers/empezar');
+const { SiSeguirHandler, EmpezarHandler, NuevoRoscoHandler } = require('../lambda/handlers/empezar');
 const { PasarHandler, ResponderHandler } = require('../lambda/handlers/juego');
 const { HelpHandler, StopHandler, FallbackHandler } = require('../lambda/handlers/varios');
 const { getActual } = require('../lambda/lib/game');
@@ -30,12 +30,15 @@ const launchReq = (session, persistent) => ({
   responseBuilder: mockInput('X', session, persistent).responseBuilder
 });
 
-test('SiSeguir responde a Yes/Continuar/Empezar y Nuevo solo a No', () => {
+test('SiSeguir responde a Yes/Continuar, Empezar va aparte y Nuevo solo a No', () => {
   const h = (n) => ({ requestEnvelope: { request: { type: 'IntentRequest', intent: { name: n } } } });
-  ['AMAZON.YesIntent', 'ContinuarRoscoIntent', 'EmpezarRoscoIntent'].forEach((n) => {
+  ['AMAZON.YesIntent', 'ContinuarRoscoIntent'].forEach((n) => {
     expect(SiSeguirHandler.canHandle(h(n))).toBe(true);
     expect(NuevoRoscoHandler.canHandle(h(n))).toBe(false);
+    expect(EmpezarHandler.canHandle(h(n))).toBe(false);
   });
+  expect(EmpezarHandler.canHandle(h('EmpezarRoscoIntent'))).toBe(true);
+  expect(SiSeguirHandler.canHandle(h('EmpezarRoscoIntent'))).toBe(false);
   expect(NuevoRoscoHandler.canHandle(h('AMAZON.NoIntent'))).toBe(true);
   expect(SiSeguirHandler.canHandle(h('AMAZON.NoIntent'))).toBe(false);
   expect(PasarHandler.canHandle(h('PasarIntent'))).toBe(true);
@@ -47,7 +50,7 @@ test('SiSeguir responde a Yes/Continuar/Empezar y Nuevo solo a No', () => {
 
 test('Empezar crea rosco y No sin partida previa despide', async () => {
   const session = {}, persistent = {};
-  const r1 = await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  const r1 = await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
   expect(session.juego.rosco.length).toBe(27);
   expect(r1.speak).toMatch(/Comencemos/);
   const s2 = {}, p2 = {};
@@ -58,14 +61,34 @@ test('Empezar crea rosco y No sin partida previa despide', async () => {
 
 test('No con rosco en curso empieza otro', async () => {
   const session = {}, persistent = {};
-  await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
   const r = await NuevoRoscoHandler.handle(mockInput('AMAZON.NoIntent', {}, persistent));
   expect(r.speak).toMatch(/empezamos otro/);
 });
 
+test('Empezar SIEMPRE crea rosco nuevo aunque haya partida guardada', async () => {
+  const session = {}, persistent = {};
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  // Avanzo 5 letras en la guardada
+  for (let i = 0; i < 5; i += 1) {
+    const a = getActual(session.juego);
+    await ResponderHandler.handle(
+      mockInput('ResponderIntent', session, persistent, { Respuesta: { value: a.a } })
+    );
+  }
+  expect(session.juego.aciertos).toBe(5);
+  // "nuevo rosco" con partida a medias -> marcador a cero, no retoma
+  const s2 = {};
+  const r = await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', s2, persistent));
+  expect(s2.juego.aciertos).toBe(0);
+  expect(s2.juego.fallos).toBe(0);
+  expect(s2.juego.rosco.filter((e) => e.estado !== 'pendiente').length).toBe(0);
+  expect(r.speak).toMatch(/Comencemos/);
+});
+
 test('Continuar retoma donde iba', async () => {
   const session = {}, persistent = {};
-  await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
   const s2 = {}, r = await SiSeguirHandler.handle(mockInput('ContinuarRoscoIntent', s2, persistent));
   expect(s2.juego.rosco.length).toBe(27);
   expect(r.speak).toMatch(/Comencemos/);
@@ -73,7 +96,7 @@ test('Continuar retoma donde iba', async () => {
 
 test('Pasar nunca es fallo y marca pasada', async () => {
   const session = {}, persistent = {};
-  await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
   const fallos = session.juego.fallos;
   const r = await PasarHandler.handle(mockInput('PasarIntent', session, persistent));
   expect(session.juego.fallos).toBe(fallos);
@@ -82,7 +105,7 @@ test('Pasar nunca es fallo y marca pasada', async () => {
 
 test('Rosco completo: récord la 1ª vez, mejor marca después', async () => {
   const session = {}, persistent = {};
-  await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', session, persistent));
   let last;
   for (let i = 0; i < 27; i += 1) {
     const a = getActual(session.juego);
@@ -94,7 +117,7 @@ test('Rosco completo: récord la 1ª vez, mejor marca después', async () => {
   expect(persistent.partidas).toBe(1);
   // Segunda partida peor: 27 fallos
   const s2 = {};
-  await SiSeguirHandler.handle(mockInput('EmpezarRoscoIntent', s2, persistent));
+  await EmpezarHandler.handle(mockInput('EmpezarRoscoIntent', s2, persistent));
   let last2;
   for (let i = 0; i < 27; i += 1) {
     last2 = await ResponderHandler.handle(
