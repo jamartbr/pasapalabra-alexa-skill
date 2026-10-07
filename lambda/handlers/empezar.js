@@ -22,7 +22,7 @@ function ask(entry) {
 const SiSeguirHandler = {
   canHandle(h) {
     const r = h.requestEnvelope.request;
-    return (r.type === 'IntentRequest' && ['AMAZON.YesIntent', 'SeguirRoscoIntent', 'EmpezarRoscoIntent'].includes(r.intent.name));
+    return (r.type === 'IntentRequest' && ['AMAZON.YesIntent', 'ContinuarRoscoIntent', 'EmpezarRoscoIntent'].includes(r.intent.name));
   },
   async handle(h) {
     let stored = {};
@@ -46,14 +46,20 @@ const SiSeguirHandler = {
 const NuevoRoscoHandler = {
   canHandle(h) {
     const r = h.requestEnvelope.request;
-    return (r.type === 'IntentRequest' && ['AMAZON.NoIntent', 'NuevoRoscoIntent'].includes(r.intent.name));
+    return (r.type === 'IntentRequest' && r.intent.name === 'AMAZON.NoIntent');
   },
   async handle(h) {
-    const juego = initRosco(BANCO);
-    await persistEnCurso(h, juego);
-    const actual = getActual(juego);
-    const t = ask(actual);
-    return h.responseBuilder.speak(t.speak).reprompt(t.reprompt).getResponse();
+    let stored = {};
+    try { stored = await h.attributesManager.getPersistentAttributes(); } catch (e) { stored = {}; }
+    // No ante "¿seguimos o nuevo?" -> rosco nuevo; No ante "¿empezamos?" -> despedida
+    if (stored.roscoEnCurso && stored.roscoEnCurso.fase === 'EN_JUEGO') {
+      const juego = initRosco(BANCO);
+      await persistEnCurso(h, juego);
+      const actual = getActual(juego);
+      const t = ask(actual);
+      return h.responseBuilder.speak(`De acuerdo, empezamos otro. ${t.speak}`).reprompt(t.reprompt).getResponse();
+    }
+    return h.responseBuilder.speak('De acuerdo, cuando quieras jugamos. ¡Hasta luego!').withShouldEndSession(true).getResponse();
   }
 };
 

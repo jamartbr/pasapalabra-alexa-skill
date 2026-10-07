@@ -1,30 +1,6 @@
 'use strict';
 const R = require('../lib/ranking');
 
-const RankingHandler = {
-  canHandle(h) {
-    const r = h.requestEnvelope.request;
-    return r.type === 'IntentRequest' && r.intent.name === 'RankingIntent';
-  },
-  async handle(h) {
-    let p = {};
-    try { p = await h.attributesManager.getPersistentAttributes(); } catch (e) { p = {}; }
-    const ranking = R.load(p);
-    const m = ranking.mejorMarca;
-    const txt = m.fecha
-      ? `Tu mejor marca es ${m.aciertos} aciertos y ${m.fallos} fallos en ${ranking.partidas} partidas.`
-      : 'Aún no tienes partidas terminadas. Juega un rosco completo.';
-    const s = h.attributesManager.getSessionAttributes() || {};
-    const juego = s.juego;
-    if (juego && juego.fase === 'EN_JUEGO') {
-      const { getActual, preguntaTexto } = require('../lib/game');
-      const actual = getActual(juego);
-      return h.responseBuilder.speak(`${txt} Sigues en juego con ${juego.aciertos} aciertos. ${preguntaTexto(actual)}.`).reprompt(`Te repito: ${preguntaTexto(actual)}.`).getResponse();
-    }
-    return h.responseBuilder.speak(`${txt} ¿Quieres empezar un nuevo rosco?`).reprompt('¿Empezamos?').getResponse();
-  }
-};
-
 const HelpHandler = {
   canHandle(h) {
     const r = h.requestEnvelope.request;
@@ -32,7 +8,7 @@ const HelpHandler = {
   },
   handle(h) {
     const s = h.attributesManager.getSessionAttributes() || {};
-    const base = 'Te digo una definición por letra. Responde con una palabra, o di pasapalabra para saltar, o salir para guardar. ';
+    const base = 'Te digo una definición por letra. Responde con una palabra, o di la p-palabra para saltar, o salir para guardar. ';
     if (s.juego && s.juego.fase === 'EN_JUEGO') {
       const { getActual, preguntaTexto } = require('../lib/game');
       const actual = getActual(s.juego);
@@ -42,29 +18,6 @@ const HelpHandler = {
   }
 };
 
-const EstadoHandler = {
-  canHandle(h) {
-    const r = h.requestEnvelope.request;
-    return r.type === 'IntentRequest' && r.intent.name === 'EstadoRoscoIntent';
-  },
-  handle(h) {
-    const s = h.attributesManager.getSessionAttributes() || {};
-    const juego = s.juego;
-    if (!juego) return h.responseBuilder.speak('Aún no hay rosco. ¿Empezamos uno?').reprompt('¿Empezamos?').getResponse();
-    const { getActual, preguntaTexto } = require('../lib/game');
-    const actual = getActual(juego);
-    return h.responseBuilder.speak(`Llevas ${juego.aciertos} aciertos y ${juego.fallos} fallos. Ahora: ${preguntaTexto(actual)}.`).reprompt(`Te repito: ${preguntaTexto(actual)}.`).getResponse();
-  }
-};
-
-const SalirHandler = {
-  canHandle(h) {
-    const r = h.requestEnvelope.request;
-    return r.type === 'IntentRequest' && ['AMAZON.StopIntent', 'AMAZON.CancelIntent', 'SalirIntent', 'AMAZON.NoIntent'].includes(r.intent ? r.intent.name : '') && false;
-  },
-  async handle(h) { return h.responseBuilder.speak('Hasta luego.').getResponse(); }
-};
-// Stop real (sin colisión con Nuevo que usa NoIntent solo sin juego): lo registramos aparte
 const StopHandler = {
   canHandle(h) {
     const r = h.requestEnvelope.request;
@@ -97,7 +50,7 @@ const FallbackHandler = {
     if (s.juego && s.juego.fase === 'EN_JUEGO') {
       const { getActual, preguntaTexto } = require('../lib/game');
       const actual = getActual(s.juego);
-      return h.responseBuilder.speak(`No te he entendido. ${preguntaTexto(actual)}.`).reprompt('Repite o di pasapalabra.').getResponse();
+      return h.responseBuilder.speak(`No te he entendido. ${preguntaTexto(actual)}.`).reprompt('Repite o di la p-palabra.').getResponse();
     }
     return h.responseBuilder.speak('No te he entendido. ¿Quieres empezar un rosco?').reprompt('¿Empezamos?').getResponse();
   }
@@ -129,4 +82,4 @@ const ErrorHandler = {
   }
 };
 
-module.exports = { RankingHandler, HelpHandler, EstadoHandler, StopHandler, FallbackHandler, SessionEndedHandler, ErrorHandler };
+module.exports = { HelpHandler, StopHandler, FallbackHandler, SessionEndedHandler, ErrorHandler };
