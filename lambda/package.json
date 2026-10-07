@@ -1,0 +1,23 @@
+{
+  "name": "rosco-de-palabras-lambda",
+  "version": "1.0.0",
+  "description": "Backend Pasapalabra Alexa Skill es-ES",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage --roots ../test"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ask-sdk-core": "^2.14.0",
+    "ask-sdk-model": "^1.53.0",
+    "ask-sdk-dynamodb-persistence-adapter": "^2.14.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
