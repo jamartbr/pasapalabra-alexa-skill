@@ -1,0 +1,16 @@
+{
+  "askResources": {
+    "profiles": {
+      "default": {
+        "skillMetadata": {
+          "src": "./skill-package"
+        },
+        "code": {
+          "default": {
+            "src": "./lambda"
+          }
+        }
+      }
+    }
+  }
+}

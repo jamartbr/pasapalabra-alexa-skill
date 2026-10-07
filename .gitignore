@@ -1,0 +1,10 @@
+# Privado experimento - no compartir agentes ni contexto local
+.opencode/
+*.local
+.ask/
+node_modules/
+lambda/node_modules/
+lambda/coverage/
+.obsidian/
+.env
+ask-resources.json.bak
