@@ -6,7 +6,7 @@
           "summary": "Juego Rosco de palabras por voz",
           "examplePhrases": ["Alexa, jugar a rosco de palabras", "Alexa, abre rosco de palabras", "Alexa, quiero jugar al rosco"],
           "name": "Rosco de palabras",
-          "description": "Juego Pasapalabra por voz: rosco de 27 letras con la Ñ, sin temporizador, con ranking local y continuación de partida.",
+          "description": "Rosco de 27 letras con la Ñ, sin temporizador, con ranking local y continuación de partida.",
           "keywords": ["pasapalabra", "rosco", "juego", "palabras", "trivial"]
         }
       },
