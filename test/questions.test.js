@@ -3,7 +3,7 @@ const BANCO = require('../lambda/lib/questions');
 const { ROSCO_27 } = require('../lambda/lib/config');
 const { normaliza } = require('../lambda/lib/game');
 
-const isAutorQ = (q) => /Pintor|Escritor|Compositor|Cineasta|Poeta|Dramaturgo|Escritora|Filósofo|Historiador/i.test(q);
+const isAutorQ = (q) => /Pintor|Escritor|Compositor|Cineasta|Poeta|Dramaturgo|Escritora|Filósofo|Historiador|Fotógrafo|Científico|Arquitecto|Compositora|Pintora|Novelista|Ensayista|Matemático|Físico|Médico|Inventor/i.test(q);
 const isConjQ = (q) => /persona del|Participio|Gerundio/i.test(q);
 
 test('27 claves con 25 cada una', () => {
@@ -34,15 +34,35 @@ test('sin duplicados dentro de letra ni entre letras (unicidad global)', () => {
   });
   expect(Object.keys(seen).length).toBe(27 * 25);
 });
-test('cuota por letra: 1 autor + 3 conjugaciones + 21 definiciones', () => {
+test('cuota por letra: 2 autores + 3 conjugaciones + 20 definiciones', () => {
   ROSCO_27.forEach((letra) => {
     const arr = BANCO[letra];
     const aut = arr.filter((e) => isAutorQ(e.q));
     const con = arr.filter((e) => !isAutorQ(e.q) && isConjQ(e.q));
     const def = arr.filter((e) => !isAutorQ(e.q) && !isConjQ(e.q));
-    expect(aut.length).toBe(1);
+    expect(aut.length).toBe(2);
     expect(con.length).toBe(3);
-    expect(def.length).toBe(21);
+    expect(def.length).toBe(20);
+  });
+});
+test('TTS: q entre 5 y 14 palabras y sin ["()0-9]', () => {
+  ROSCO_27.forEach((letra) => {
+    BANCO[letra].forEach(({ q }) => {
+      const nPalabras = q.trim().split(/\s+/).length;
+      expect(nPalabras).toBeGreaterThanOrEqual(5);
+      expect(nPalabras).toBeLessThanOrEqual(14);
+      expect(q).not.toMatch(/["()0-9]/);
+    });
+  });
+});
+test('no filtra respuesta: normaliza(q) no contiene normaliza(a) si len>3 salvo conjugación', () => {
+  ROSCO_27.forEach((letra) => {
+    BANCO[letra].forEach(({ q, a }) => {
+      const na = normaliza(a);
+      if (na.length <= 3) return;
+      if (isConjQ(q)) return;
+      expect(normaliza(q)).not.toContain(na);
+    });
   });
 });
 test('prioriza empieza-sobre-contiene', () => {
