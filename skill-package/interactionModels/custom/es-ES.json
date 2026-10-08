@@ -45,7 +45,7 @@
               "type": "AMAZON.SearchQuery"
             }
           ],
-          "samples": ["{Respuesta}", "La respuesta es {Respuesta}"]
+          "samples": ["La respuesta es {Respuesta}", "Es {Respuesta}", "Yo digo {Respuesta}", "{Respuesta} es la respuesta"]
         },
         {
           "name": "PasarIntent",
